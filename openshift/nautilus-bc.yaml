@@ -15,13 +15,19 @@ spec:
   source:
     type: Git
     git:
-      uri: https://github.com/bcgov/nautilus-hackathon-2026.git
+      uri: "https://github.com/bcgov/nautilus-hackathon-2026.git"
       ref: openshift
+    contextDir: openshift
   strategy:
     type: Docker
     dockerStrategy:
-      dockerfilePath: docker/Dockerfile
+      dockerfilePath: nautilus/Dockerfile-Openshift
   output:
     to:
       kind: ImageStreamTag
       name: nautilus:latest
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  runPolicy: Serial
