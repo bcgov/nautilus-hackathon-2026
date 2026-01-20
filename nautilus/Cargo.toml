@@ -4,4 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-rocket = "0.5.1"
+rocket = { version = "0.5.1", features = ["json"] }
+anyhow = "1.0.100"
+sqlx = { version = "0.8.6", features = ["macros", "migrate", "runtime-tokio-native-tls", "sqlite"] }
