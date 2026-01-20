@@ -13,7 +13,10 @@ metadata:
     app: nautilus
 spec:
   source:
-    type: Binary
+    type: Git
+    git:
+      uri: https://github.com/bcgov/nautilus-hackathon-2026.git
+      ref: openshift
   strategy:
     type: Docker
     dockerStrategy:
