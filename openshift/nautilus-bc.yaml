@@ -1,0 +1,24 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: nautilus
+  labels:
+    app: nautilus
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: nautilus
+  labels:
+    app: nautilus
+spec:
+  source:
+    type: Binary
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: docker/Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: nautilus:latest

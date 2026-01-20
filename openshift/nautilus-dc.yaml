@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nautilus
+  labels:
+    app: nautilus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nautilus
+  template:
+    metadata:
+      labels:
+        app: nautilus
+    spec:
+      containers:
+        - name: nautilus
+          image: nautilus:latest
+          imagePullPolicy: IfNotPresent
