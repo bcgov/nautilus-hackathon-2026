@@ -17,11 +17,11 @@ spec:
     git:
       uri: "https://github.com/bcgov/nautilus-hackathon-2026.git"
       ref: openshift
-    contextDir: openshift
+    contextDir: nautilus
   strategy:
     type: Docker
     dockerStrategy:
-      dockerfilePath: ../nautilus/Dockerfile-Openshift
+      dockerfilePath: ./Dockerfile-Openshift
   output:
     to:
       kind: ImageStreamTag
