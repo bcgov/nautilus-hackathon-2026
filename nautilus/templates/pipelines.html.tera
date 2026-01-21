@@ -14,6 +14,16 @@
         required
       />
     </div>
+    <div>
+      <label class="text-sm font-medium text-slate-700" for="pipeline-branch">Branch name</label>
+      <input
+        class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+        id="pipeline-branch"
+        name="branch_name"
+        type="text"
+        required
+      />
+    </div>
     <label class="flex items-center gap-2 text-sm text-slate-700">
       <input id="auto-deploy" name="auto_deploy" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
       Auto deploy
@@ -28,6 +38,7 @@
       <tr>
         <th>ID</th>
         <th>Name</th>
+        <th>Branch</th>
         <th>Auto Deploy</th>
         <th>Actions</th>
       </tr>
@@ -65,6 +76,7 @@
         row.innerHTML = `
           <td class="py-3">${pipeline.id}</td>
           <td class="py-3 font-medium text-slate-800">${pipeline.name}</td>
+          <td class="py-3 text-slate-600">${pipeline.branch_name}</td>
           <td class="py-3">${pipeline.auto_deploy === 1 ? "Yes" : "No"}</td>
           <td class="py-3">
             <div class="flex flex-wrap gap-2">
@@ -105,6 +117,7 @@
       event.preventDefault();
       const payload = {
         name: form.name.value,
+        branch_name: document.getElementById("pipeline-branch").value,
         auto_deploy: form.auto_deploy.checked ? 1 : 0,
         created_at: isoNow(),
         updated_at: isoNow(),

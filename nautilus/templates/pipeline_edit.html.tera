@@ -16,6 +16,16 @@
         required
       />
     </div>
+    <div>
+      <label class="text-sm font-medium text-slate-700" for="pipeline-branch">Branch name</label>
+      <input
+        class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+        id="pipeline-branch"
+        name="branch_name"
+        type="text"
+        required
+      />
+    </div>
     <label class="flex items-center gap-2 text-sm text-slate-700">
       <input id="auto-deploy" name="auto_deploy" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
       Auto deploy
@@ -33,6 +43,7 @@
     const pipelineId = {{ pipeline_id }};
     const form = document.getElementById("pipeline-edit-form");
     const nameInput = document.getElementById("pipeline-name");
+    const branchInput = document.getElementById("pipeline-branch");
     const autoDeployInput = document.getElementById("auto-deploy");
 
     function isoNow() {
@@ -47,6 +58,7 @@
       }
       const pipeline = await res.json();
       nameInput.value = pipeline.name;
+      branchInput.value = pipeline.branch_name;
       autoDeployInput.checked = pipeline.auto_deploy === 1;
     }
 
@@ -54,6 +66,7 @@
       event.preventDefault();
       const payload = {
         name: nameInput.value,
+        branch_name: branchInput.value,
         auto_deploy: autoDeployInput.checked ? 1 : 0,
         updated_at: isoNow(),
       };

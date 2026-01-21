@@ -10,7 +10,7 @@ pub async fn list_pipelines(
     repo_id: u64,
 ) -> Result<Json<Vec<Pipeline>>, Status> {
     let rows = sqlx::query_as::<_, Pipeline>(
-        "select id, repository_id, name, auto_deploy, created_at, updated_at
+        "select id, repository_id, name, branch_name, auto_deploy, created_at, updated_at
          from pipeline
          where repository_id = ?
          order by id asc",
@@ -29,7 +29,7 @@ pub async fn get_pipeline(
     id: u64,
 ) -> Result<Json<Pipeline>, Status> {
     let row = sqlx::query_as::<_, Pipeline>(
-        "select id, repository_id, name, auto_deploy, created_at, updated_at
+        "select id, repository_id, name, branch_name, auto_deploy, created_at, updated_at
          from pipeline
          where repository_id = ? and id = ?",
     )
@@ -52,12 +52,13 @@ pub async fn create_pipeline(
     payload: Json<CreatePipeline>,
 ) -> Result<Json<Pipeline>, Status> {
     let created = sqlx::query_as::<_, Pipeline>(
-        "insert into pipeline (repository_id, name, auto_deploy, created_at, updated_at)
-         values (?, ?, ?, ?, ?)
-         returning id, repository_id, name, auto_deploy, created_at, updated_at",
+        "insert into pipeline (repository_id, name, branch_name, auto_deploy, created_at, updated_at)
+         values (?, ?, ?, ?, ?, ?)
+         returning id, repository_id, name, branch_name, auto_deploy, created_at, updated_at",
     )
     .bind(repo_id as i64)
     .bind(&payload.name)
+    .bind(&payload.branch_name)
     .bind(payload.auto_deploy)
     .bind(&payload.created_at)
     .bind(&payload.updated_at)
@@ -77,11 +78,12 @@ pub async fn update_pipeline(
 ) -> Result<Json<Pipeline>, Status> {
     let updated = sqlx::query_as::<_, Pipeline>(
         "update pipeline
-         set name = ?, auto_deploy = ?, updated_at = ?
+         set name = ?, branch_name = ?, auto_deploy = ?, updated_at = ?
          where repository_id = ? and id = ?
-         returning id, repository_id, name, auto_deploy, created_at, updated_at",
+         returning id, repository_id, name, branch_name, auto_deploy, created_at, updated_at",
     )
     .bind(&payload.name)
+    .bind(&payload.branch_name)
     .bind(payload.auto_deploy)
     .bind(&payload.updated_at)
     .bind(repo_id as i64)

@@ -15,6 +15,7 @@ create table if not exists pipeline (
     id integer primary key autoincrement,
     repository_id integer not null,
     name text not null unique,
+    branch_name text not null,
     auto_deploy integer not null,
     created_at text not null,
     updated_at text not null,
