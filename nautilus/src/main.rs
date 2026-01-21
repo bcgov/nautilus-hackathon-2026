@@ -45,3 +45,4 @@ async fn run_api() -> Result<()> {
         .context("rocket server stopped unexpectedly")?;
     Ok(())
 }
+

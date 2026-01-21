@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nautilus
+  labels:
+    app: nautilus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nautilus
+  template:
+    metadata:
+      labels:
+        app: nautilus
+    spec:
+      containers:
+        - name: nautilus
+          image: "image-registry.openshift-image-registry.svc:5000/e52f12-dev/nautilus:latest"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 500Mi
+          env:
+            - name: NAUTILUSTEST_GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nautilus
+                  key: NAUTILUSTEST_GITHUB_TOKEN
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nautilus
+  labels:
+    app: nautilus
+spec:
+  selector:
+    app: nautilus
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: nautilus
+  labels:
+    app: nautilus
+spec:
+  host: nautilus.apps.silver.devops.gov.bc.ca
+  to:
+    kind: Service
+    name: nautilus
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
