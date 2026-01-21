@@ -8,6 +8,7 @@ extern crate rocket;
 mod api;
 mod db;
 mod models;
+mod worker;
 
 #[rocket::main]
 async fn main() -> Result<()> {
@@ -18,7 +19,10 @@ async fn main() -> Result<()> {
             run_api().await?;
             return Ok(());
         } else if args[1] == "worker" {
-            println!("Worker not implemented yet");
+            let _ = worker::shell::run_shell_file(
+                "/Users/pbastian/projects/nautilus-hackathon-2026/workspace/nautilus.sh",
+            )
+            .await;
             return Ok(());
         }
     }
