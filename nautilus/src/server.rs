@@ -185,13 +185,14 @@ fn sync_repo_and_run(token: Option<&str>) -> Result<(), String> {
         return Err(format!("git reset exited with {}", status));
     }
 
-    let status = Command::new("sh")
+    let status = Command::new("bash")
+        .arg("-c")
         .arg("./nautilus.sh")
         .current_dir(REPO_DIR)
         .status()
         .map_err(|err| format!("nautilus.sh failed: {}", err))?;
     if !status.success() {
-        return Err(format!("nautilus.sh exited with {}", status));
+        println!("nautilus.sh exited with {}; ignoring per request.", status);
     }
 
     Ok(())
