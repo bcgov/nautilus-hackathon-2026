@@ -16,7 +16,7 @@ spec:
     type: Git
     git:
       uri: "https://github.com/bcgov/nautilus-hackathon-2026.git"
-      ref: openshift
+      ref: develop
     contextDir: nautilus
   strategy:
     type: Docker
