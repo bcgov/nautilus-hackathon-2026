@@ -6,8 +6,12 @@ RUN cargo build --release
 
 FROM debian:bookworm-slim
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libssl3 ca-certificates git \
+    && apt-get install -y --no-install-recommends ca-certificates curl git libssl3 \
     && rm -rf /var/lib/apt/lists/*
+RUN curl -fsSL https://get.helm.sh/helm-v3.14.4-linux-amd64.tar.gz \
+    | tar -xz -C /tmp \
+    && mv /tmp/linux-amd64/helm /usr/local/bin/helm \
+    && rm -rf /tmp/linux-amd64
 WORKDIR /app
 COPY --from=builder /app/nautilus/target/release/nautilus /app/nautilus
 CMD ["/bin/sh", "-c", "/app/nautilus; tail -f /dev/null"]
