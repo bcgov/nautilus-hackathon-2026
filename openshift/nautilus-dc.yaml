@@ -47,6 +47,11 @@ spec:
                 secretKeyRef:
                   name: nautilus
                   key: NAUTILUSTEST_GITHUB_TOKEN
+            - name: OPENSHIFT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nautilus
+                  key: OPENSHIFT_TOKEN
   strategy:
     type: RollingUpdate
     rollingUpdate:
