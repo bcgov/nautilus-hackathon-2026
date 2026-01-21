@@ -5,7 +5,7 @@ use rocket::serde::json::Json;
 use rocket::State;
 use sqlx::SqlitePool;
 
-use crate::models::{Deployment, Pipeline, Repository};
+use crate::models::{Deployment};
 
 // Simple landing page with links to JSON routes.
 #[get("/")]

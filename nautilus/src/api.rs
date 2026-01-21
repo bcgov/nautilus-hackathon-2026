@@ -2,21 +2,21 @@ use rocket::{Build, Rocket, Route};
 use sqlx::SqlitePool;
 
 mod index;
-mod pipeline;
-mod repository;
+mod pipelines;
+mod repositories;
 
 pub fn get_routes() -> Vec<Route> {
     routes![
-        repository::list_repositories,
-        repository::get_repository,
-        repository::create_repository,
-        repository::update_repository,
-        repository::delete_repository,
-        pipeline::list_pipelines,
-        pipeline::get_pipeline,
-        pipeline::create_pipeline,
-        pipeline::update_pipeline,
-        pipeline::delete_pipeline,
+        repositories::list_repositories,
+        repositories::get_repository,
+        repositories::create_repository,
+        repositories::update_repository,
+        repositories::delete_repository,
+        pipelines::list_pipelines,
+        pipelines::get_pipeline,
+        pipelines::create_pipeline,
+        pipelines::update_pipeline,
+        pipelines::delete_pipeline,
     ]
 }
 
@@ -28,10 +28,8 @@ pub fn launch_webserver(pool: SqlitePool) -> Rocket<Build> {
             routes![
                 index::index,
                 index::health,
-                index::repositories,
-                index::pipelines,
                 index::deployments
             ],
         )
-        .mount("/repository", get_routes())
+        .mount("/repositories", get_routes())
 }

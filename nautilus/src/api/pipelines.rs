@@ -4,7 +4,7 @@ use sqlx::SqlitePool;
 use crate::models::Pipeline;
 
 /* CRUD endpoints for the `Repository` model */
-#[get("/<repo_id>/pipeline")]
+#[get("/<repo_id>/pipelines")]
 pub async fn list_pipelines(
     pool: &State<SqlitePool>,
     repo_id: u64,
@@ -21,22 +21,22 @@ pub async fn list_pipelines(
     Ok(Json(rows))
 }
 
-#[get("/<repo_id>/pipeline/<id>")]
+#[get("/<repo_id>/pipelines/<id>")]
 pub fn get_pipeline(repo_id: u64, id: u64) -> String {
     format!("pipeline id {id} in repository id {repo_id}")
 }
 
-#[post("/<repo_id>/pipeline")]
+#[post("/<repo_id>/pipelines")]
 pub fn create_pipeline(repo_id: u64) -> String {
     format!("Created pipeline in repo {repo_id}!")
 }
 
-#[post("/<repo_id>/pipeline/<id>")]
+#[post("/<repo_id>/pipelines/<id>")]
 pub fn update_pipeline(repo_id: u64, id: u64) -> String {
     format!("Updated pipeline {id} in repository id {repo_id}")
 }
 
-#[delete("/<repo_id>/pipeline/<id>")]
+#[delete("/<repo_id>/pipelines/<id>")]
 pub fn delete_pipeline(repo_id: u64, id: u64) -> String {
     format!("Deleted pipeline {id} in repository id {repo_id}")
 }
