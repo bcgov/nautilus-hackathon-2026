@@ -12,6 +12,10 @@ RUN curl -fsSL https://get.helm.sh/helm-v3.14.4-linux-amd64.tar.gz \
     | tar -xz -C /tmp \
     && mv /tmp/linux-amd64/helm /usr/local/bin/helm \
     && rm -rf /tmp/linux-amd64
+RUN curl -fsSL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.15.7/openshift-client-linux-4.15.7.tar.gz \
+    | tar -xz -C /tmp \
+    && mv /tmp/oc /usr/local/bin/oc \
+    && rm -rf /tmp/kubectl /tmp/oc
 WORKDIR /app
 COPY --from=builder /app/nautilus/target/release/nautilus /app/nautilus
 CMD ["/bin/sh", "-c", "/app/nautilus; tail -f /dev/null"]
