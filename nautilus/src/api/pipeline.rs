@@ -1,8 +1,24 @@
+use rocket::{State, http::Status, serde::json::Json};
+use sqlx::SqlitePool;
+
+use crate::models::Pipeline;
 
 /* CRUD endpoints for the `Repository` model */
 #[get("/<repo_id>/pipeline")]
-pub fn list_pipelines(repo_id: u64) -> String {
-    format!("All the pipelines for repo id {repo_id}!")
+pub async fn list_pipelines(
+    pool: &State<SqlitePool>,
+    repo_id: u64,
+) -> Result<Json<Vec<Pipeline>>, Status> {
+    let rows = sqlx::query_as::<_, Pipeline>(
+        format!("select id, repository_id, name, auto_deploy, created_at, updated_at 
+                 from pipeline 
+                 where repository_id = {repo_id} 
+                 order by id asc").as_str()
+    )
+    .fetch_all(pool.inner())
+    .await
+    .map_err(|_| Status::InternalServerError)?;
+    Ok(Json(rows))
 }
 
 #[get("/<repo_id>/pipeline/<id>")]

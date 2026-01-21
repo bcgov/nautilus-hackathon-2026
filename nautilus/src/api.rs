@@ -1,10 +1,9 @@
-use sqlx::SqlitePool;
 use rocket::{Build, Rocket, Route};
-
+use sqlx::SqlitePool;
 
 mod index;
-mod repository;
 mod pipeline;
+mod repository;
 
 pub fn get_routes() -> Vec<Route> {
     routes![
@@ -18,18 +17,21 @@ pub fn get_routes() -> Vec<Route> {
         pipeline::create_pipeline,
         pipeline::update_pipeline,
         pipeline::delete_pipeline,
-        index::index,
-        index::health,
-        index::repositories,
-        index::pipelines,
-        index::deployments
     ]
 }
 
-// The [launch] annotation generates a `main` method for this module
-#[launch]
-pub fn launch_webserver() -> Rocket<Build> {
+pub fn launch_webserver(pool: SqlitePool) -> Rocket<Build> {
     rocket::build()
-        .mount("/", routes![index::index])
+        .manage(pool)
+        .mount(
+            "/",
+            routes![
+                index::index,
+                index::health,
+                index::repositories,
+                index::pipelines,
+                index::deployments
+            ],
+        )
         .mount("/repository", get_routes())
 }
