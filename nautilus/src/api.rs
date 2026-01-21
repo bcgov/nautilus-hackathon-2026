@@ -3,6 +3,7 @@ use rocket_dyn_templates::Template;
 use sqlx::SqlitePool;
 
 mod pages;
+mod deployments;
 mod pipelines;
 mod repositories;
 
@@ -18,6 +19,7 @@ pub fn get_routes() -> Vec<Route> {
         pipelines::create_pipeline,
         pipelines::update_pipeline,
         pipelines::delete_pipeline,
+        deployments::deployments,
     ]
 }
 
