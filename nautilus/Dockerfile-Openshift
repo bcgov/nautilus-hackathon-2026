@@ -5,6 +5,9 @@ WORKDIR /app/nautilus
 RUN cargo build --release
 
 FROM debian:bookworm-slim
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libssl3 ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=builder /app/nautilus/target/release/nautilus /app/nautilus
 CMD ["/bin/sh", "-c", "/app/nautilus; tail -f /dev/null"]
