@@ -39,50 +39,75 @@ struct Commit {
 }
 
 fn poll_zeva_branch() {
-    let client = reqwest::blocking::Client::new();
+    let client = reqwest::blocking::Client::builder()
+        .timeout(Duration::from_secs(10))
+        .pool_max_idle_per_host(0)
+        .build()
+        .expect("build reqwest client");
     let mut last_seen: Option<String> = None;
     let mut logged_connected = false;
     let token = std::env::var("ZEVA_GITHUB_TOKEN").ok();
 
     loop {
-        let mut request = client
-            .get("https://api.github.com/repos/bcgov/zeva/commits/test-naultilus")
-            .header("User-Agent", "nautilus-hackathon-2026");
+        let mut last_error: Option<String> = None;
+        let mut attempts_left = 3;
+        let mut backoff_secs = 1;
 
-        if let Some(ref token) = token {
-            request = request.bearer_auth(token);
-        }
+        while attempts_left > 0 {
+            let mut request = client
+                .get("https://api.github.com/repos/bcgov/zeva/commits/test-naultilus")
+                .header("User-Agent", "nautilus-hackathon-2026");
 
-        match request.send() {
-            Ok(response) => {
-                let status = response.status();
-                let body = response.text().unwrap_or_default();
-                if status.is_success() {
-                    if !logged_connected {
-                        println!("Connected to GitHub API for bcgov/zeva.");
-                        logged_connected = true;
-                    }
-                    match serde_json::from_str::<Commit>(&body) {
-                        Ok(commit) => {
-                            if last_seen.as_deref() != Some(commit.sha.as_str()) {
-                                println!("New commit on test-naultilus: {}", commit.sha);
-                                last_seen = Some(commit.sha);
+            if let Some(ref token) = token {
+                request = request.bearer_auth(token);
+            }
+
+            match request.send() {
+                Ok(response) => {
+                    let status = response.status();
+                    let body = response.text().unwrap_or_default();
+                    if status.is_success() {
+                        if !logged_connected {
+                            println!("Connected to GitHub API for bcgov/zeva.");
+                            logged_connected = true;
+                        }
+                        match serde_json::from_str::<Commit>(&body) {
+                            Ok(commit) => {
+                                if last_seen.as_deref() != Some(commit.sha.as_str()) {
+                                    println!("New commit on test-naultilus: {}", commit.sha);
+                                    last_seen = Some(commit.sha);
+                                }
+                            }
+                            Err(err) => {
+                                last_error = Some(format!(
+                                    "Failed to parse GitHub response: {} | body={}",
+                                    err, body
+                                ));
                             }
                         }
-                        Err(err) => {
-                            println!("Failed to parse GitHub response: {}", err);
-                            println!("GitHub response body: {}", body);
-                        }
+                    } else {
+                        last_error = Some(format!(
+                            "GitHub API returned {}: {}",
+                            status.as_u16(),
+                            body
+                        ));
                     }
-                } else {
-                    println!(
-                        "GitHub API returned {}: {}",
-                        status.as_u16(),
-                        body
-                    );
+                    break;
+                }
+                Err(err) => {
+                    last_error = Some(format!("Failed to reach GitHub API: {}", err));
                 }
             }
-            Err(err) => println!("Failed to reach GitHub API: {}", err),
+
+            attempts_left -= 1;
+            if attempts_left > 0 {
+                thread::sleep(Duration::from_secs(backoff_secs));
+                backoff_secs = (backoff_secs * 2).min(8);
+            }
+        }
+
+        if let Some(err) = last_error {
+            println!("{}", err);
         }
 
         thread::sleep(Duration::from_secs(30));
