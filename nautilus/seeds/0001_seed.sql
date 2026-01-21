@@ -28,3 +28,14 @@ values (2, 1, 'fedcba654321', 'failed', '2026-01-20T11:10:00Z', '2026-01-20T11:1
 
 insert into deployment (id, pipeline_id, commit_sha, status, created_at, started_at, ended_at, pr_id)
 values (3, 3, null, 'pending', '2026-01-20T12:10:00Z', null, null, null);
+
+-- Add data for our nautilus test repo
+
+insert into repository (id, name, url, created_at, updated_at)
+values (99, 'demo-repo', 'https://github.com/bcgov/nautilus-test-repo', '2026-01-20T10:00:00Z', '2026-01-20T10:00:00Z');
+
+insert into pipeline (id, repository_id, name, auto_deploy, created_at, updated_at)
+values (99, 99, 'demo-repo-pipeline', 0, '2026-01-20T10:05:00Z', '2026-01-20T10:05:00Z');
+
+insert into deployment (id, pipeline_id, commit_sha, status, created_at, started_at, ended_at, pr_id)
+values (99, 99, '8534eac40f98f8680c216293e7c8c943d24142bb', 'successful', '2026-01-20T10:10:00Z', '2026-01-20T10:11:00Z', '2026-01-20T10:12:00Z', 42);
