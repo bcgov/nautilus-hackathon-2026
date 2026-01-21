@@ -1,0 +1,75 @@
+{% extends "base" %}
+
+{% block content %}
+  <h1 class="text-2xl font-semibold text-slate-900">Edit Repository</h1>
+  <p class="mt-2 text-sm text-slate-600">
+    Update the repository details and save your changes.
+  </p>
+  <form id="repo-edit-form" class="mt-6 grid gap-4">
+    <div>
+      <label class="text-sm font-medium text-slate-700" for="repo-name">Name</label>
+      <input
+        class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+        id="repo-name"
+        name="name"
+        type="text"
+        required
+      />
+    </div>
+    <div>
+      <label class="text-sm font-medium text-slate-700" for="repo-url">URL</label>
+      <input
+        class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+        id="repo-url"
+        name="url"
+        type="text"
+        required
+      />
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="inline-flex w-fit items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" type="submit">
+        Save Changes
+      </button>
+      <a class="text-sm text-slate-600 hover:text-slate-900" href="/app/repositories">Cancel</a>
+    </div>
+  </form>
+
+  <script>
+    const repoId = {{ repo_id }};
+    const form = document.getElementById("repo-edit-form");
+    const nameInput = document.getElementById("repo-name");
+    const urlInput = document.getElementById("repo-url");
+
+    function isoNow() {
+      return new Date().toISOString();
+    }
+
+    async function loadRepository() {
+      const res = await fetch(`/repositories/${repoId}`);
+      if (!res.ok) {
+        window.location.href = "/app/repositories";
+        return;
+      }
+      const repo = await res.json();
+      nameInput.value = repo.name;
+      urlInput.value = repo.url;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const payload = {
+        name: nameInput.value,
+        url: urlInput.value,
+        updated_at: isoNow(),
+      };
+      await fetch(`/repositories/${repoId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      window.location.href = "/app/repositories";
+    });
+
+    loadRepository();
+  </script>
+{% endblock content %}
