@@ -1,6 +1,6 @@
 // Function(s) to pull commit data from a defined github repo and branch
-mod merge_commits;
-mod status_checks_by_sha;
+use crate::github::merge_commits;
+use crate::github::status_checks_by_sha;
 
 use serde_json::Value;
 use serde_json;
