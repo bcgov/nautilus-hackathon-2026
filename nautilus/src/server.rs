@@ -1,5 +1,7 @@
 use std::io::{Read, Write};
 use std::net::TcpListener;
+use std::path::Path;
+use std::process::Command;
 use std::thread;
 use std::time::Duration;
 
@@ -38,6 +40,10 @@ struct Commit {
     sha: String,
 }
 
+const REPO_URL: &str = "https://github.com/bcgov/nautilus-test-repo.git";
+const REPO_BRANCH: &str = "devops/test-commit-read";
+const REPO_DIR: &str = "/app/nautilus-test-repo";
+
 fn poll_zeva_branch() {
     let client = reqwest::blocking::Client::builder()
         .timeout(Duration::from_secs(10))
@@ -47,6 +53,9 @@ fn poll_zeva_branch() {
     let mut last_seen: Option<String> = None;
     let mut logged_connected = false;
     let token = std::env::var("NAUTILUSTEST_GITHUB_TOKEN").ok();
+    if token.is_none() {
+        println!("NAUTILUSTEST_GITHUB_TOKEN is not set; git operations may fail.");
+    }
 
     loop {
         let mut last_error: Option<String> = None;
@@ -79,6 +88,9 @@ fn poll_zeva_branch() {
                                         commit.sha
                                     );
                                     last_seen = Some(commit.sha);
+                                    if let Err(err) = sync_repo_and_run(token.as_deref()) {
+                                        println!("Failed to sync repo or run script: {}", err);
+                                    }
                                 }
                             }
                             Err(err) => {
@@ -114,5 +126,80 @@ fn poll_zeva_branch() {
         }
 
         thread::sleep(Duration::from_secs(30));
+    }
+}
+
+fn sync_repo_and_run(token: Option<&str>) -> Result<(), String> {
+    if !Path::new(REPO_DIR).exists() {
+        let repo_url = build_repo_url(token);
+        let status = Command::new("git")
+            .arg("clone")
+            .arg("--branch")
+            .arg(REPO_BRANCH)
+            .arg("--single-branch")
+            .arg(repo_url)
+            .arg(REPO_DIR)
+            .env("GIT_TERMINAL_PROMPT", "0")
+            .status()
+            .map_err(|err| format!("git clone failed: {}", err))?;
+        if !status.success() {
+            return Err(format!("git clone exited with {}", status));
+        }
+    }
+
+    let status = Command::new("git")
+        .arg("-C")
+        .arg(REPO_DIR)
+        .arg("fetch")
+        .arg("origin")
+        .arg(REPO_BRANCH)
+        .env("GIT_TERMINAL_PROMPT", "0")
+        .status()
+        .map_err(|err| format!("git fetch failed: {}", err))?;
+    if !status.success() {
+        return Err(format!("git fetch exited with {}", status));
+    }
+
+    let status = Command::new("git")
+        .arg("-C")
+        .arg(REPO_DIR)
+        .arg("checkout")
+        .arg(REPO_BRANCH)
+        .env("GIT_TERMINAL_PROMPT", "0")
+        .status()
+        .map_err(|err| format!("git checkout failed: {}", err))?;
+    if !status.success() {
+        return Err(format!("git checkout exited with {}", status));
+    }
+
+    let status = Command::new("git")
+        .arg("-C")
+        .arg(REPO_DIR)
+        .arg("reset")
+        .arg("--hard")
+        .arg(format!("origin/{}", REPO_BRANCH))
+        .env("GIT_TERMINAL_PROMPT", "0")
+        .status()
+        .map_err(|err| format!("git reset failed: {}", err))?;
+    if !status.success() {
+        return Err(format!("git reset exited with {}", status));
+    }
+
+    let status = Command::new("sh")
+        .arg("./nautilus.sh")
+        .current_dir(REPO_DIR)
+        .status()
+        .map_err(|err| format!("nautilus.sh failed: {}", err))?;
+    if !status.success() {
+        return Err(format!("nautilus.sh exited with {}", status));
+    }
+
+    Ok(())
+}
+
+fn build_repo_url(token: Option<&str>) -> String {
+    match token {
+        Some(token) => format!("https://x-access-token:{}@github.com/bcgov/nautilus-test-repo.git", token),
+        None => REPO_URL.to_string(),
     }
 }

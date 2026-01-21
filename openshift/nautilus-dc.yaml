@@ -17,7 +17,7 @@ spec:
       containers:
         - name: nautilus
           image: "image-registry.openshift-image-registry.svc:5000/e52f12-dev/nautilus:latest"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP
