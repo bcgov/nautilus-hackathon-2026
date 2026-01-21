@@ -41,6 +41,12 @@ spec:
             requests:
               cpu: 50m
               memory: 500Mi
+          env:
+            - name: ZEVA_GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: rustilus
+                  key: ZEVA_GITHUB_TOKEN
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -61,3 +67,22 @@ spec:
       port: 8080
       targetPort: 8080
       protocol: TCP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: nautilus
+  labels:
+    app: nautilus
+spec:
+  host: nautilus.apps.silver.devops.gov.bc.ca
+  to:
+    kind: Service
+    name: nautilus
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None

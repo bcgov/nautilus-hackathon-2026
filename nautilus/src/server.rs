@@ -1,7 +1,12 @@
 use std::io::{Read, Write};
 use std::net::TcpListener;
+use std::thread;
+use std::time::Duration;
+
+use serde::Deserialize;
 
 pub fn run() {
+    thread::spawn(poll_zeva_branch);
     println!("Starting server on 0.0.0.0:8080");
     let listener = TcpListener::bind("0.0.0.0:8080").expect("bind 0.0.0.0:8080");
 
@@ -25,5 +30,46 @@ pub fn run() {
             );
             let _ = stream.write_all(response.as_bytes());
         }
+    }
+}
+
+#[derive(Deserialize)]
+struct Commit {
+    sha: String,
+}
+
+fn poll_zeva_branch() {
+    let client = reqwest::blocking::Client::new();
+    let mut last_seen: Option<String> = None;
+    let token = std::env::var("ZEVA_GITHUB_TOKEN").ok();
+
+    loop {
+        let mut request = client
+            .get("https://api.github.com/repos/bcgov/zeva/commits/test-naultilus")
+            .header("User-Agent", "nautilus-hackathon-2026");
+
+        if let Some(ref token) = token {
+            request = request.bearer_auth(token);
+        }
+
+        match request.send() {
+            Ok(response) => {
+                if response.status().is_success() {
+                    println!("Connected to GitHub API for bcgov/zeva.");
+                }
+                match response.json::<Commit>() {
+                    Ok(commit) => {
+                        if last_seen.as_deref() != Some(commit.sha.as_str()) {
+                            println!("New commit on test-naultilus: {}", commit.sha);
+                            last_seen = Some(commit.sha);
+                        }
+                    }
+                    Err(err) => println!("Failed to parse GitHub response: {}", err),
+                }
+            }
+            Err(err) => println!("Failed to reach GitHub API: {}", err),
+        }
+
+        thread::sleep(Duration::from_secs(30));
     }
 }
