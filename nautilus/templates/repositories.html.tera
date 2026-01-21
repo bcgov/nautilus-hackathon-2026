@@ -1,0 +1,120 @@
+{% extends "base" %}
+
+{% block content %}
+  <h1 class="text-2xl font-semibold text-slate-900">Repositories</h1>
+  <form id="repo-form" class="mt-6 grid gap-4">
+    <div>
+      <label class="text-sm font-medium text-slate-700" for="repo-name">Name</label>
+      <input
+        class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+        id="repo-name"
+        name="name"
+        type="text"
+        required
+      />
+    </div>
+    <div>
+      <label class="text-sm font-medium text-slate-700" for="repo-url">URL</label>
+      <input
+        class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+        id="repo-url"
+        name="url"
+        type="text"
+        required
+      />
+    </div>
+    <button class="inline-flex w-fit items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" type="submit">
+      Create Repository
+    </button>
+  </form>
+
+  <table class="mt-8 w-full table-auto text-sm">
+    <thead class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>URL</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="repo-table" class="divide-y divide-slate-100"></tbody>
+  </table>
+
+  <script>
+    const tableBody = document.getElementById("repo-table");
+    const form = document.getElementById("repo-form");
+
+    function isoNow() {
+      return new Date().toISOString();
+    }
+
+    async function loadRepositories() {
+      const res = await fetch("/repositories");
+      const repos = await res.json();
+      tableBody.innerHTML = "";
+      repos.forEach((repo) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="py-3">${repo.id}</td>
+          <td class="py-3 font-medium text-slate-800">${repo.name}</td>
+          <td class="py-3">
+            <a class="text-blue-600 hover:text-blue-700" href="/app/repositories/${repo.id}/pipelines">${repo.url}</a>
+          </td>
+          <td class="py-3">
+            <div class="flex flex-wrap gap-2">
+              <a
+                class="rounded-lg border border-slate-200 px-3 py-1 text-sm text-slate-700 hover:bg-slate-50"
+              href="/app/repositories/${repo.id}/edit"
+              >Edit</a>
+              <button
+                data-id="${repo.id}"
+                class="delete-repo rounded-lg border border-rose-200 px-3 py-1 text-sm text-rose-600 hover:bg-rose-50"
+              >Delete</button>
+            </div>
+          </td>
+        `;
+        row.querySelector(".delete-repo").addEventListener("click", async (event) => {
+          event.preventDefault();
+          const id = event.target.dataset.id;
+          showConfirm(`Delete repository ${repo.name}?`, async (confirmed) => {
+            if (!confirmed) {
+              return;
+            }
+            const res = await fetch(`/repositories/${id}`, { method: "DELETE" });
+            if (!res.ok) {
+              showMessage("Delete failed. Remove pipelines first or try again.", "error");
+              return;
+            }
+            showMessage("Repository deleted.", "success");
+            loadRepositories();
+          });
+        });
+        tableBody.appendChild(row);
+      });
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const payload = {
+        name: form.name.value,
+        url: form.url.value,
+        created_at: isoNow(),
+        updated_at: isoNow(),
+      };
+      const res = await fetch("/repositories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        showMessage("Failed to create repository.", "error");
+        return;
+      }
+      form.reset();
+      showMessage("Repository created.", "success");
+      loadRepositories();
+    });
+
+    loadRepositories();
+  </script>
+{% endblock content %}

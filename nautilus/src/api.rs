@@ -1,7 +1,8 @@
 use rocket::{Build, Rocket, Route};
+use rocket_dyn_templates::Template;
 use sqlx::SqlitePool;
 
-mod index;
+mod pages;
 mod pipelines;
 mod repositories;
 
@@ -23,13 +24,7 @@ pub fn get_routes() -> Vec<Route> {
 pub fn launch_webserver(pool: SqlitePool) -> Rocket<Build> {
     rocket::build()
         .manage(pool)
-        .mount(
-            "/",
-            routes![
-                index::index,
-                index::health,
-                index::deployments
-            ],
-        )
+        .mount("/", pages::routes())
         .mount("/repositories", get_routes())
+        .attach(Template::fairing())
 }

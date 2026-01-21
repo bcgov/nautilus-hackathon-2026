@@ -18,7 +18,7 @@ create table if not exists pipeline (
     auto_deploy integer not null,
     created_at text not null,
     updated_at text not null,
-    foreign key (repository_id) references repository (id)
+    foreign key (repository_id) references repository (id) on delete cascade
 );
 
 create table if not exists repository (
