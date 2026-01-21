@@ -7,7 +7,8 @@ pub fn routes() -> Vec<Route> {
         repositories_page,
         repository_edit_page,
         pipelines_page,
-        pipeline_edit_page
+        pipeline_edit_page,
+        deployments_page
     ]
 }
 
@@ -35,4 +36,9 @@ pub fn pipelines_page(repo_id: u64) -> Template {
 #[get("/app/repositories/<repo_id>/pipelines/<pipeline_id>/edit")]
 pub fn pipeline_edit_page(repo_id: u64, pipeline_id: u64) -> Template {
     Template::render("pipeline_edit", context! { repo_id, pipeline_id })
+}
+
+#[get("/app/repositories/<repo_id>/pipelines/<pipeline_id>/deployments")]
+pub fn deployments_page(repo_id: u64, pipeline_id: u64) -> Template {
+    Template::render("deployments", context! { repo_id, pipeline_id })
 }

@@ -76,7 +76,9 @@
         row.innerHTML = `
           <td class="py-3">${pipeline.id}</td>
           <td class="py-3 font-medium text-slate-800">${pipeline.name}</td>
-          <td class="py-3 text-slate-600">${pipeline.branch_name}</td>
+          <td class="py-3 text-slate-600">
+            <a class="text-blue-600 hover:text-blue-700" href="/app/repositories/${repoId}/pipelines/${pipeline.id}/deployments">${pipeline.branch_name}</a>
+          </td>
           <td class="py-3">${pipeline.auto_deploy === 1 ? "Yes" : "No"}</td>
           <td class="py-3">
             <div class="flex flex-wrap gap-2">
