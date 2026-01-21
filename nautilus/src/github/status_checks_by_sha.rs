@@ -2,16 +2,13 @@
 
 
 use serde_json::Value;
-use serde_json;
 use reqwest::Error;
 use reqwest::header::{USER_AGENT};
 
-#[tokio::main]
 pub async fn get_status_checks_by_sha(repo: &str, sha: &str) -> Result<Value, Error> {
 
   let mut path_string = String::from(repo);
-  let sha_string: &str = serde_json::from_str(sha).unwrap();
-  let api_path = format!("commits/{}/check-runs", sha_string);
+  let api_path = format!("commits/{}/check-runs", sha);
   path_string.push_str(&api_path);
 
   let client = reqwest::Client::new();
