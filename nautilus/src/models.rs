@@ -34,6 +34,7 @@ pub struct Pipeline {
     pub id: i64,
     pub repository_id: i64,
     pub name: String,
+    pub branch_name: String,
     pub auto_deploy: i64,
     pub created_at: String,
     pub updated_at: String,
@@ -43,6 +44,7 @@ pub struct Pipeline {
 #[serde(crate = "rocket::serde")]
 pub struct CreatePipeline {
     pub name: String,
+    pub branch_name: String,
     pub auto_deploy: i64,
     pub created_at: String,
     pub updated_at: String,
@@ -52,6 +54,7 @@ pub struct CreatePipeline {
 #[serde(crate = "rocket::serde")]
 pub struct UpdatePipeline {
     pub name: String,
+    pub branch_name: String,
     pub auto_deploy: i64,
     pub updated_at: String,
 }
