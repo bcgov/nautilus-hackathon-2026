@@ -20,6 +20,7 @@ pub fn get_routes() -> Vec<Route> {
         pipelines::update_pipeline,
         pipelines::delete_pipeline,
         deployments::deployments,
+        deployments::create_deployments,
     ]
 }
 

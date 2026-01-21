@@ -1,5 +1,8 @@
-use rocket::Route;
+use rocket::{http::Status, Route, State};
 use rocket_dyn_templates::{context, Template};
+use sqlx::SqlitePool;
+
+use crate::api::deployments;
 
 pub fn routes() -> Vec<Route> {
     routes![
@@ -39,6 +42,43 @@ pub fn pipeline_edit_page(repo_id: u64, pipeline_id: u64) -> Template {
 }
 
 #[get("/app/repositories/<repo_id>/pipelines/<pipeline_id>/deployments")]
-pub fn deployments_page(repo_id: u64, pipeline_id: u64) -> Template {
-    Template::render("deployments", context! { repo_id, pipeline_id })
+pub async fn deployments_page(
+    pool: &State<SqlitePool>,
+    repo_id: u64,
+    pipeline_id: u64,
+) -> Result<Template, Status> {
+    let (view, error_message) = match deployments::load_deployments(pool, repo_id, pipeline_id).await {
+        Ok(view) => (view, None),
+        Err(status) if status.code == 404 => (
+            deployments::DeploymentsView {
+                deployed: Vec::new(),
+                pending: Vec::new(),
+            },
+            Some("Pipeline not found.".to_string()),
+        ),
+        Err(status) if status.code == 400 => (
+            deployments::DeploymentsView {
+                deployed: Vec::new(),
+                pending: Vec::new(),
+            },
+            Some("Repository URL is invalid for GitHub.".to_string()),
+        ),
+        Err(_) => (
+            deployments::DeploymentsView {
+                deployed: Vec::new(),
+                pending: Vec::new(),
+            },
+            Some("Failed to load deployments.".to_string()),
+        ),
+    };
+    Ok(Template::render(
+        "deployments",
+        context! {
+            repo_id,
+            pipeline_id,
+            deployed: view.deployed,
+            pending: view.pending,
+            error_message
+        },
+    ))
 }

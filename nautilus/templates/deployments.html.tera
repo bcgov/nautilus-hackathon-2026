@@ -2,102 +2,75 @@
 
 {% block content %}
   <h1 class="text-2xl font-semibold text-slate-900">Deployments</h1>
-  </br>
-  <h2 class="text-xl text-slate-900">Undeployed Commits</h2>
-  <table class="mt-8 w-full table-auto text-sm">
-    <thead class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
-      <tr>
-        <th>Description</th>
-        <th>Commit Sha</th>
-        <th>CI Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="commit-table" class="divide-y divide-slate-100"></tbody>
-  </table>
-  </br>
-  <h2 class="text-xl text-slate-900">Past Deploys</h2>
-  <table class="mt-8 w-full table-auto text-sm">
-    <thead class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
-      <tr>
-        <th>Commit Sha</th>
-        <th>Deploy Created</th>
-        <th>Status</th>
-        <th/>
-      </tr>
-    </thead>
-    <tbody id="deployment-table" class="divide-y divide-slate-100"></tbody>
-  </table>
 
-  <script>
-    const deploymentTableBody = document.getElementById("deployment-table");
-    const commitTableBody = document.getElementById("commit-table");
+  {% if error_message | default(value="") | length > 0 %}
+    <div class="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+      {{ error_message }}
+    </div>
+  {% endif %}
 
-    const repoId = {{ repo_id }};
+  {% set deployed_items = deployed | default(value=[]) %}
+  {% set pending_items = pending | default(value=[]) %}
 
-    function isoNow() {
-      return new Date().toISOString();
-    }
+  <div class="mt-6">
+    <h2 class="text-xl text-slate-900">Undeployed Commits</h2>
+    <table class="mt-4 w-full table-auto text-sm">
+      <thead class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+        <tr>
+          <th>Description</th>
+          <th>Commit Sha</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% if pending_items | length == 0 %}
+          <tr>
+            <td class="py-6 text-center text-slate-500" colspan="4">No undeployed commits found.</td>
+          </tr>
+        {% else %}
+          {% for commit in pending_items %}
+            <tr>
+              <td class="py-3 font-medium text-slate-800">{{ commit.title }}</td>
+              <td class="py-3 font-mono text-xs text-slate-600">{{ commit.merge_commit_sha }}</td>
+              <td class="py-3">
+                <form action="" method="post">
+                  <button class="rounded-lg border border-slate-200 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50" disabled>
+                    Deploy
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
 
-    async function loadDeployments() {
-      deployments = [
-        {
-          commit_sha: "abc123",
-          created_at: "2026-01-20T10:10:00Z",
-          status: "successful"
-        }
-      ]
-      deploymentTableBody.innerHTML = "";
-      deployments.forEach((deployment) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td class="py-3">${deployment.commit_sha}</td>
-          <td class="py-3 font-medium text-slate-800">${deployment.created_at}</td>
-          <td class="py-3 text-slate-600">${deployment.status}</td>
-        `;
-        deploymentTableBody.appendChild(row);
-      });
-    }
-    async function loadCommits() {
-      commits = [
-        {
-          title: "test commit",
-          merged_at: "2026-01-20T10:10:00Z",
-          merge_commit_sha: "123456",
-          statuses: [
-            {
-              name: "build",
-              status: "completed",
-              conclusion: "success"
-            }
-          ]
-        }
-      ]
-
-      commitTableBody.innerHTML = "";
-      commits.forEach((commit) => {
-
-        const allStatusChecksCompleted = commit.statuses.every(s => s.status == "completed")
-        const allStatusChecksPassed = commit.statuses.every(s => s.conclusion == "success")
-
-        let displayStatus = "Pending";
-        if (allStatusChecksCompleted && allStatusChecksPassed)
-          displayStatus = "Succeeded"
-        else if (allStatusChecksCompleted && !allStatusChecksPassed)
-          displayStatus = "Failed"
-
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td class="py-3">${commit.title}</td>
-          <td class="py-3 font-medium text-slate-800">${commit.merge_commit_sha}</td>
-          <td class="py-3 text-slate-600">${displayStatus}</td>
-          <td>BUTTON TO DEPLOY</td>
-        `;
-        commitTableBody.appendChild(row);
-      });
-    }
-
-    loadDeployments();
-    loadCommits();
-  </script>
+  <div class="mt-8">
+    <h2 class="text-xl text-slate-900">Past Deploys</h2>
+    <table class="mt-4 w-full table-auto text-sm">
+      <thead class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+        <tr>
+          <th>Commit Sha</th>
+          <th>Deploy Created</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% if deployed_items | length == 0 %}
+          <tr>
+            <td class="py-6 text-center text-slate-500" colspan="3">No deployments found.</td>
+          </tr>
+        {% else %}
+          {% for deployment in deployed_items %}
+            <tr>
+              <td class="py-3 font-mono text-xs text-slate-600">{{ deployment.commit_sha | default(value="-") }}</td>
+              <td class="py-3 text-slate-600">{{ deployment.created_at }}</td>
+              <td class="py-3"></td>
+            </tr>
+          {% endfor %}
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
 {% endblock content %}

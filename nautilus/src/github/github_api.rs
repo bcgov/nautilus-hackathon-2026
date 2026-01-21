@@ -3,11 +3,11 @@ use crate::github::merge_commits;
 use crate::github::status_checks_by_sha;
 
 use serde_json::Value;
-use serde_json;
-use reqwest::Error;
-use reqwest::header::{USER_AGENT};
 
-#[derive(Debug)]
+use serde::Serialize;
+
+#[derive(Debug, Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct StatusCheckData {
     name: String,
     status: String,
@@ -33,7 +33,8 @@ impl StatusCheckData {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct PrCommitData {
     title: String,
     merged_at: String,
@@ -66,20 +67,49 @@ impl PrCommitData {
   }
 }
 
-pub fn poll_merge_commits(repo: &str, branch: &str) -> Vec<PrCommitData> {
+pub fn repo_api_base(repo_url: &str) -> Option<String> {
+  let trimmed = repo_url.trim_end_matches('/');
+  if trimmed.starts_with("https://api.github.com/repos/") {
+    return Some(format!("{}/", trimmed));
+  }
+  if let Some(path) = trimmed.strip_prefix("https://github.com/") {
+    let repo_path = path.trim_end_matches(".git");
+    return Some(format!("https://api.github.com/repos/{}/", repo_path));
+  }
+  if let Some(path) = trimmed.strip_prefix("http://github.com/") {
+    let repo_path = path.trim_end_matches(".git");
+    return Some(format!("https://api.github.com/repos/{}/", repo_path));
+  }
+  if let Some(path) = trimmed.strip_prefix("git@github.com:") {
+    let repo_path = path.trim_end_matches(".git");
+    return Some(format!("https://api.github.com/repos/{}/", repo_path));
+  }
+  None
+}
 
-  let merge_commits_json: Vec<Value> = merge_commits::get_merge_commits(repo, branch).unwrap();
+pub async fn poll_merge_commits(repo: &str, branch: &str, last_sha: Option<&str>) -> Vec<PrCommitData> {
 
-  // Simulate last deployed sha
-  let saved_sha: &str = "8534eac40f98f8680c216293e7c8c943d24142bb";
+  let merge_commits_json: Vec<Value> = match merge_commits::get_merge_commits(repo, branch).await {
+    Ok(value) => value,
+    Err(_) => return Vec::new(),
+  };
 
   let mut commits_array: Vec<PrCommitData> = Vec::new();
 
   for i in &merge_commits_json {
-    if i["merge_commit_sha"] == saved_sha {
-      break;
+    let merge_sha = match i["merge_commit_sha"].as_str() {
+      Some(value) => value,
+      None => continue,
+    };
+    if let Some(saved_sha) = last_sha {
+      if merge_sha == saved_sha {
+        break;
+      }
     }
-    let status_checks_json: Value = status_checks_by_sha::get_status_checks_by_sha(repo, &i["merge_commit_sha"].to_string()).unwrap();
+    let status_checks_json: Value = match status_checks_by_sha::get_status_checks_by_sha(repo, merge_sha).await {
+      Ok(value) => value,
+      Err(_) => continue,
+    };
     let mut status_array: Vec<StatusCheckData> = Vec::new();
     if let Some(statuses) = status_checks_json["check_runs"].as_array() {
       for status in statuses {
@@ -87,7 +117,7 @@ pub fn poll_merge_commits(repo: &str, branch: &str) -> Vec<PrCommitData> {
         status_array.push(status_data);
       }
     }
-    let data = PrCommitData::new(&i["title"].to_string(), &i["merged_at"].to_string(), &i["merge_commit_sha"].to_string(), status_array);
+    let data = PrCommitData::new(&i["title"].to_string(), &i["merged_at"].to_string(), merge_sha, status_array);
 
     commits_array.push(data);
   }

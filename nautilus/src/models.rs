@@ -58,3 +58,22 @@ pub struct UpdatePipeline {
     pub auto_deploy: i64,
     pub updated_at: String,
 }
+
+#[derive(FromRow)]
+pub struct PipelineRepo {
+    pub repo_url: String,
+    pub branch_name: String,
+}
+
+#[derive(FromRow, Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct Deployment {
+    pub id: i64,
+    pub pipeline_id: i64,
+    pub commit_sha: Option<String>,
+    pub status: String,
+    pub created_at: String,
+    pub started_at: Option<String>,
+    pub ended_at: Option<String>,
+    pub pr_id: Option<i64>,
+}
