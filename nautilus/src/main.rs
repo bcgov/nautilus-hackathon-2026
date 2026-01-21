@@ -7,6 +7,7 @@ extern crate rocket;
 
 mod api;
 mod db;
+mod github;
 mod models;
 mod worker;
 

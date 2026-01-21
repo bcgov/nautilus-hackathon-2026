@@ -6,7 +6,6 @@ use serde_json;
 use reqwest::Error;
 use reqwest::header::{USER_AGENT};
 
-#[tokio::main]
 pub async fn get_merge_commits(repo: &str, branch: &str) -> Result<Vec<Value>, Error> {
 
   let mut path_string = String::from(repo);

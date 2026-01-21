@@ -35,7 +35,7 @@ insert into repository (id, name, url, created_at, updated_at)
 values (99, 'demo-repo', 'https://github.com/bcgov/nautilus-test-repo', '2026-01-20T10:00:00Z', '2026-01-20T10:00:00Z');
 
 insert into pipeline (id, repository_id, name, branch_name, auto_deploy, created_at, updated_at)
-values (99, 99, 'demo-repo-pipeline', 'main', 0, '2026-01-20T10:05:00Z', '2026-01-20T10:05:00Z');
+values (99, 99, 'demo-repo-pipeline', 'develop', 0, '2026-01-20T10:05:00Z', '2026-01-20T10:05:00Z');
 
 insert into deployment (id, pipeline_id, commit_sha, status, created_at, started_at, ended_at, pr_id)
-values (99, 99, '8534eac40f98f8680c216293e7c8c943d24142bb', 'successful', '2026-01-20T10:10:00Z', '2026-01-20T10:11:00Z', '2026-01-20T10:12:00Z', 42);
+values (99, 99, '8534eac40f98f8680c216293e7c8c943d24142bc', 'successful', '2026-01-20T10:10:00Z', '2026-01-20T10:11:00Z', '2026-01-20T10:12:00Z', 42);
