@@ -185,9 +185,9 @@ fn sync_repo_and_run(token: Option<&str>) -> Result<(), String> {
         return Err(format!("git reset exited with {}", status));
     }
 
-    let status = Command::new("bash")
+    let status = Command::new("sh")
         .arg("-c")
-        .arg("./nautilus.sh")
+        .arg("chmod +x ./nautilus.sh && ./nautilus.sh")
         .current_dir(REPO_DIR)
         .status()
         .map_err(|err| format!("nautilus.sh failed: {}", err))?;
