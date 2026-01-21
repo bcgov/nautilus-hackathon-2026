@@ -42,7 +42,7 @@ struct Commit {
 
 const REPO_URL: &str = "https://github.com/bcgov/nautilus-test-repo.git";
 const REPO_BRANCH: &str = "devops/test-commit-read";
-const REPO_DIR: &str = "/app/nautilus-test-repo";
+const REPO_DIR: &str = "/tmp/nautilus-test-repo";
 
 fn poll_zeva_branch() {
     let client = reqwest::blocking::Client::builder()
