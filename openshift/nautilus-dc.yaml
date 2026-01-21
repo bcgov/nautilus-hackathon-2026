@@ -42,11 +42,11 @@ spec:
               cpu: 50m
               memory: 500Mi
           env:
-            - name: ZEVA_GITHUB_TOKEN
+            - name: NAUTILUSTEST_GITHUB_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: rustilus
-                  key: ZEVA_GITHUB_TOKEN
+                  name: nautilus
+                  key: NAUTILUSTEST_GITHUB_TOKEN
   strategy:
     type: RollingUpdate
     rollingUpdate:

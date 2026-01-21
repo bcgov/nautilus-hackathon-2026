@@ -46,7 +46,7 @@ fn poll_zeva_branch() {
         .expect("build reqwest client");
     let mut last_seen: Option<String> = None;
     let mut logged_connected = false;
-    let token = std::env::var("ZEVA_GITHUB_TOKEN").ok();
+    let token = std::env::var("NAUTILUSTEST_GITHUB_TOKEN").ok();
 
     loop {
         let mut last_error: Option<String> = None;
@@ -55,7 +55,7 @@ fn poll_zeva_branch() {
 
         while attempts_left > 0 {
             let mut request = client
-                .get("https://api.github.com/repos/bcgov/zeva/commits/test-naultilus")
+                .get("https://api.github.com/repos/bcgov/nautilus-test-repo/commits/devops/test-commit-read")
                 .header("User-Agent", "nautilus-hackathon-2026");
 
             if let Some(ref token) = token {
@@ -68,13 +68,16 @@ fn poll_zeva_branch() {
                     let body = response.text().unwrap_or_default();
                     if status.is_success() {
                         if !logged_connected {
-                            println!("Connected to GitHub API for bcgov/zeva.");
+                            println!("Connected to GitHub API for bcgov/nautilus-test-repo.");
                             logged_connected = true;
                         }
                         match serde_json::from_str::<Commit>(&body) {
                             Ok(commit) => {
                                 if last_seen.as_deref() != Some(commit.sha.as_str()) {
-                                    println!("New commit on test-naultilus: {}", commit.sha);
+                                    println!(
+                                        "New commit on devops/test-commit-read: {}",
+                                        commit.sha
+                                    );
                                     last_seen = Some(commit.sha);
                                 }
                             }
