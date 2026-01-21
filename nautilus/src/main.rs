@@ -46,4 +46,3 @@ async fn run_api() -> Result<()> {
     Ok(())
 }
 
-mod server;
