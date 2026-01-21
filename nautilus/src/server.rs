@@ -41,6 +41,7 @@ struct Commit {
 fn poll_zeva_branch() {
     let client = reqwest::blocking::Client::new();
     let mut last_seen: Option<String> = None;
+    let mut logged_connected = false;
     let token = std::env::var("ZEVA_GITHUB_TOKEN").ok();
 
     loop {
@@ -54,17 +55,31 @@ fn poll_zeva_branch() {
 
         match request.send() {
             Ok(response) => {
-                if response.status().is_success() {
-                    println!("Connected to GitHub API for bcgov/zeva.");
-                }
-                match response.json::<Commit>() {
-                    Ok(commit) => {
-                        if last_seen.as_deref() != Some(commit.sha.as_str()) {
-                            println!("New commit on test-naultilus: {}", commit.sha);
-                            last_seen = Some(commit.sha);
+                let status = response.status();
+                let body = response.text().unwrap_or_default();
+                if status.is_success() {
+                    if !logged_connected {
+                        println!("Connected to GitHub API for bcgov/zeva.");
+                        logged_connected = true;
+                    }
+                    match serde_json::from_str::<Commit>(&body) {
+                        Ok(commit) => {
+                            if last_seen.as_deref() != Some(commit.sha.as_str()) {
+                                println!("New commit on test-naultilus: {}", commit.sha);
+                                last_seen = Some(commit.sha);
+                            }
+                        }
+                        Err(err) => {
+                            println!("Failed to parse GitHub response: {}", err);
+                            println!("GitHub response body: {}", body);
                         }
                     }
-                    Err(err) => println!("Failed to parse GitHub response: {}", err),
+                } else {
+                    println!(
+                        "GitHub API returned {}: {}",
+                        status.as_u16(),
+                        body
+                    );
                 }
             }
             Err(err) => println!("Failed to reach GitHub API: {}", err),
