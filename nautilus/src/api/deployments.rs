@@ -49,7 +49,7 @@ pub async fn load_deployments(
     .fetch_all(pool.inner())
     .await
     .map_err(|_| Status::InternalServerError)?;
-    
+
     // 4) Get the last deployed SHA for this pipeline.
     let last_sha = sqlx::query_scalar::<_, String>(
         "select commit_sha from deployment
