@@ -1,12 +1,13 @@
-use rocket::{http::Status, serde::json::Json, State};
+use rocket::{State, http::Status, serde::json::Json};
 use sqlx::SqlitePool;
 
+use crate::db::repository;
 use crate::models::{CreateRepository, Repository, UpdateRepository};
 
 /* CRUD endpoints for the `Repository` model */
 #[get("/")]
-pub async fn list_repositories(pool: &State<SqlitePool>) -> Result<Json<Vec<Repository>>, Status>  {
-        // `query_as` maps rows into the Repository struct.
+pub async fn list_repositories(pool: &State<SqlitePool>) -> Result<Json<Vec<Repository>>, Status> {
+    // `query_as` maps rows into the Repository struct.
     let rows = sqlx::query_as::<_, Repository>(
         "select id, name, url, created_at, updated_at from repository order by id asc",
     )
@@ -17,17 +18,10 @@ pub async fn list_repositories(pool: &State<SqlitePool>) -> Result<Json<Vec<Repo
 }
 
 #[get("/<id>")]
-pub async fn get_repository(
-    pool: &State<SqlitePool>,
-    id: u64,
-) -> Result<Json<Repository>, Status> {
-    let row = sqlx::query_as::<_, Repository>(
-        "select id, name, url, created_at, updated_at from repository where id = ?",
-    )
-    .bind(id as i64)
-    .fetch_optional(pool.inner())
-    .await
-    .map_err(|_| Status::InternalServerError)?;
+pub async fn get_repository(pool: &State<SqlitePool>, id: u64) -> Result<Json<Repository>, Status> {
+    let row = repository::get_repository(pool.inner(), id)
+        .await
+        .map_err(|_| Status::InternalServerError)?;
 
     match row {
         Some(repo) => Ok(Json(repo)),
@@ -83,10 +77,7 @@ pub async fn update_repository(
 }
 
 #[delete("/<id>")]
-pub async fn delete_repository(
-    pool: &State<SqlitePool>,
-    id: u64,
-) -> Result<Status, Status> {
+pub async fn delete_repository(pool: &State<SqlitePool>, id: u64) -> Result<Status, Status> {
     let result = sqlx::query("delete from repository where id = ?")
         .bind(id as i64)
         .execute(pool.inner())

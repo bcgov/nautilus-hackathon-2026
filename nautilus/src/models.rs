@@ -77,3 +77,11 @@ pub struct Deployment {
     pub ended_at: Option<String>,
     pub pr_id: Option<i64>,
 }
+
+#[derive(Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct CreateDeployment {
+    pub pipeline_id: i64,
+    pub commit_sha: String,
+    pub pr_id: String
+}
