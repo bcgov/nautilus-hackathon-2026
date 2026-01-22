@@ -1,7 +1,7 @@
 {% extends "base" %}
 
 {% block content %}
-  <h1 class="text-3xl font-semibold text-slate-900">Welcome to Nautilus</h1>
+  <h1 class="text-3xl mb-4 font-semibold text-slate-900 animate-[blink_1s_step-start_infinite] text-center">Welcome to Nautilus</h1>
   <img width="300" height="200" src="/images/rad.gif" alt="Totally Rad">
   <ul class="mt-4 space-y-2">
     <li>

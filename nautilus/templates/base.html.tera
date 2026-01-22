@@ -4,15 +4,26 @@
     <meta charset="utf-8" />
     <title>Nautilus</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+    </style>
   </head>
-  <body class="bg-slate-50 text-slate-900">
-    <header class="border-b border-slate-200 bg-white">
+  <body class="bg-slate-50 text-slate-900  bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%">
+    <header class="border-b border-slate-200 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
       <div class="mx-auto flex items-center gap-6 px-6 py-4">
         <a class="text-lg font-semibold text-slate-900" href="/">Nautilus</a>
       </div>
     </header>
     <main class="mx-auto px-6 py-8">
-      <div class="rounded-2xl bg-white p-6 shadow-sm">
+      <div class="rounded-2xl bg-white p-6 shadow-sm bg-[url(/images/cloudbackground.jpeg)]">
         <div id="app-message" class="mb-4 hidden rounded-lg border px-4 py-3 text-sm"></div>
         {% block content %}{% endblock content %}
       </div>
