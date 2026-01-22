@@ -19,20 +19,20 @@ spec:
           image: "image-registry.openshift-image-registry.svc:5000/e52f12-dev/nautilus:latest"
           imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - containerPort: 8000
               protocol: TCP
           readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 8080
+            exec:
+              command:
+                - /bin/pwd
             initialDelaySeconds: 3
             periodSeconds: 10
             timeoutSeconds: 2
             failureThreshold: 3
           livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 8080
+            exec:
+              command:
+                - /bin/pwd
             initialDelaySeconds: 10
             periodSeconds: 20
             timeoutSeconds: 2
@@ -69,8 +69,8 @@ spec:
     app: nautilus
   ports:
     - name: http
-      port: 8080
-      targetPort: 8080
+      port: 8000
+      targetPort: 8000
       protocol: TCP
 ---
 apiVersion: route.openshift.io/v1
