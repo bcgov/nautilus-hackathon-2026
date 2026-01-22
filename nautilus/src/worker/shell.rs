@@ -5,6 +5,8 @@ use tokio::{
     process::Command,
 };
 
+use crate::environment;
+
 pub async fn make_file_executable(file_path: &str) -> ExitStatus {
     Command::new("bash")
         .arg("-c")
@@ -17,8 +19,12 @@ pub async fn run_shell_file(file_path: &str) -> Result<(), Box<dyn std::error::E
 
     let mut command = Command::new("/bin/sh");
 
-    command.args(["-c", file_path]);
+    command.args(["-c", "./nautilus.sh"]);
     command.stdout(Stdio::piped());
+    command.env("OPENSHIFT_TOKEN", environment::getenv("OPENSHIFT_TOKEN", "abcd"));
+
+    let dir = file_path.split("/nautilus.sh").next().unwrap_or("");
+    command.current_dir(dir);
 
     let mut child = command.spawn().expect("Failed to spawn bash subprocess");
     let stdout = child.stdout.take().expect("No stdout available");
