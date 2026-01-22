@@ -82,7 +82,7 @@ pub async fn deployments(
 }
 
 #[post("/<repo_id>/pipelines/<pipeline_id>/deployments/<sha>")]
-pub fn create_deployments(
+pub async fn create_deployments(
     pool: &State<SqlitePool>,
     repo_id: u64,
     pipeline_id: u64,
