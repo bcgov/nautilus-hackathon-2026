@@ -1,4 +1,5 @@
 use rocket::{Build, Rocket, Route};
+use rocket::fs::FileServer;
 use rocket_dyn_templates::Template;
 use sqlx::SqlitePool;
 
@@ -28,6 +29,7 @@ pub fn launch_webserver(pool: SqlitePool) -> Rocket<Build> {
     rocket::build()
         .manage(pool)
         .mount("/", pages::routes())
+        .mount("/", FileServer::from("public"))
         .mount("/repositories", get_routes())
         .attach(Template::fairing())
 }

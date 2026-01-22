@@ -2,6 +2,7 @@
 
 {% block content %}
   <h1 class="text-3xl font-semibold text-slate-900">Welcome to Nautilus</h1>
+  <img width="300" height="200" src="/images/rad.gif" alt="Totally Rad">
   <ul class="mt-4 space-y-2">
     <li>
       <a class="text-blue-600 hover:text-blue-700" href="/app/repositories">Manage Repositories</a>
