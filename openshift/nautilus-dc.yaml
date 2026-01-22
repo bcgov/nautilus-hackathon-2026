@@ -18,6 +18,11 @@ spec:
         - name: nautilus
           image: "image-registry.openshift-image-registry.svc:5000/e52f12-dev/nautilus:latest"
           imagePullPolicy: Always
+          env:
+            - name: ROCKET_ADDRESS
+              value: "0.0.0.0"
+            - name: ROCKET_PORT
+              value: "8000"
           ports:
             - containerPort: 8000
               protocol: TCP
