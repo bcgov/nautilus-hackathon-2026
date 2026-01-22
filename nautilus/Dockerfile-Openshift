@@ -2,6 +2,7 @@ FROM rust:1.85-bookworm AS builder
 WORKDIR /app
 COPY . ./nautilus
 WORKDIR /app/nautilus
+RUN cargo install sqlx-cli --no-default-features --features sqlite
 RUN make db-touch \
     && make db-migrate \
     && make db-seed
