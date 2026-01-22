@@ -1,6 +1,10 @@
 use anyhow::{Context, Result};
 use sqlx::{sqlite::SqlitePoolOptions, SqlitePool};
 
+pub mod repository;
+pub mod deployment;
+pub mod pipeline;
+
 pub async fn init_pool(url: &str) -> Result<SqlitePool> {
     let pool = SqlitePoolOptions::new()
         .max_connections(5)

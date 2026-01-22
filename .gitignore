@@ -28,3 +28,5 @@ target
 
 # Checked out repos
 workspace
+
+**/.env

@@ -1,9 +1,12 @@
+use std::thread;
+
 use rocket::{http::Status, serde::json::Json, State};
 use sqlx::SqlitePool;
 
 use crate::github::github_api;
 use crate::github::github_api::PrCommitData;
 use crate::models::{Deployment, PipelineRepo};
+use crate::worker::deployment_service;
 
 #[derive(rocket::serde::Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -78,12 +81,19 @@ pub async fn deployments(
     Ok(Json(view))
 }
 
-#[post("/<repo_id>/pipelines/<id>/deployments")]
+#[post("/<repo_id>/pipelines/<pipeline_id>/deployments/<sha>")]
 pub async fn create_deployments(
     pool: &State<SqlitePool>,
     repo_id: u64,
-    id: u64,
+    pipeline_id: u64,
+    sha: String
 ) -> Result<String, Status> {
-    let text = format!("Deploying repo {} for pipeline {}", repo_id, id);
+    let text = format!("Deploying repo {} for pipeline {} and sha {}", repo_id, pipeline_id,sha);
+    let sql_pool = pool.inner().clone();
+
+    thread::spawn(async move || {
+        deployment_service::deploy(&sql_pool, pipeline_id, sha.as_str()).await.ok();
+    });
+    
     Ok(text)
 }
