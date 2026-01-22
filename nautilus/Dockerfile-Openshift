@@ -29,5 +29,6 @@ WORKDIR /app
 COPY --from=builder /app/nautilus/target/release/nautilus /app/nautilus
 COPY --from=builder /app/nautilus/nautilus.db /app/nautilus.db
 COPY --from=builder /app/nautilus/templates /app/templates
+COPY --from=builder /app/nautilus/public /app/public
 RUN chmod 0666 /app/nautilus.db
 CMD ["/bin/sh", "-c", "/app/nautilus api; tail -f /dev/null"]
