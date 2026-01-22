@@ -41,8 +41,8 @@
                 </ul>
               </td>
               <td class="py-3">
-                <form action="" method="post">
-                  <button class="rounded-lg border border-slate-200 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50" disabled>
+                <form id="deploy-form" action="/repositories/{{ repo_id }}/pipelines/{{ pipeline_id }}/deployments/{{ commit.merge_commit_sha }}" method="post">
+                  <button type="submit" class="rounded-lg border border-slate-200 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50">
                     Deploy
                   </button>
                 </form>

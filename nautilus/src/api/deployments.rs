@@ -1,5 +1,6 @@
 use std::thread;
 
+use rocket::response::Redirect;
 use rocket::{http::Status, serde::json::Json, State};
 use sqlx::SqlitePool;
 
@@ -86,14 +87,13 @@ pub async fn create_deployments(
     pool: &State<SqlitePool>,
     repo_id: u64,
     pipeline_id: u64,
-    sha: String
-) -> Result<String, Status> {
+    sha: &str
+) -> Redirect {
     let text = format!("Deploying repo {} for pipeline {} and sha {}", repo_id, pipeline_id,sha);
-    let sql_pool = pool.inner().clone();
+    println!("{}", text);
 
-    thread::spawn(async move || {
-        deployment_service::deploy(&sql_pool, pipeline_id, sha.as_str()).await.ok();
-    });
-    
-    Ok(text)
+    deployment_service::deploy(pool.inner(), pipeline_id, sha).await.ok();
+    let redirect_uri = format!("/app/repositories/{}", uri!(deployments(repo_id, pipeline_id)).to_string());
+
+    Redirect::to(redirect_uri)
 }

@@ -34,5 +34,7 @@ pub async fn deploy(pool: &SqlitePool, pipeline_id: u64, commit_sha: &str) -> Re
     // 2. execute nautilus.sh from that path
     shell::run_shell_file(&nautilus_file).await.unwrap();
 
+    deployment::update_status(pool, deployment.id, "successful").await.unwrap();
+
     Ok(())
 }
