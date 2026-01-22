@@ -19,6 +19,7 @@
         <tr>
           <th>Description</th>
           <th>Commit Sha</th>
+          <th>CI Checks</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -32,6 +33,13 @@
             <tr>
               <td class="py-3 font-medium text-slate-800">{{ commit.title }}</td>
               <td class="py-3 font-mono text-xs text-slate-600">{{ commit.merge_commit_sha }}</td>
+              <td class="py-3 font-mono text-xs text-slate-600">
+                <ul>
+                  {% for status in commit.statuses %}
+                    <li>{{status.name}} : {{status.status}} : <strong>{{status.conclusion}}</strong></li>
+                  {% endfor %}
+                </ul>
+              </td>
               <td class="py-3">
                 <form action="" method="post">
                   <button class="rounded-lg border border-slate-200 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50" disabled>
