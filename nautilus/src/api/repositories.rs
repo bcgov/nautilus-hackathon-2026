@@ -18,8 +18,8 @@ pub async fn list_repositories(pool: &State<SqlitePool>) -> Result<Json<Vec<Repo
 }
 
 #[get("/<id>")]
-pub async fn get_repository(pool: &State<SqlitePool>, id: u64) -> Result<Json<Repository>, Status> {
-    let row = repository::get_repository(pool.inner(), id)
+pub async fn get_repository(pool: &State<SqlitePool>, id: i64) -> Result<Json<Repository>, Status> {
+    let row = repository::fetch(pool.inner(), id)
         .await
         .map_err(|_| Status::InternalServerError)?;
 

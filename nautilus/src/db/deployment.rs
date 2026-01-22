@@ -3,7 +3,7 @@ use sqlx::{SqlitePool, Error};
 
 use crate::models::{Deployment, CreateDeployment};
 
-pub async fn create_deployment(pool: &SqlitePool, payload: CreateDeployment) -> Result<Deployment, Error> {
+pub async fn create(pool: &SqlitePool, payload: CreateDeployment) -> Result<Deployment, Error> {
     sqlx::query_as::<_, Deployment>(
         "insert into deployment (pipeline_id, commit_sha, pr_id)
          values (?, ?, ?)

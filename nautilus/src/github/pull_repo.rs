@@ -101,6 +101,7 @@ fn poll_zeva_branch() {
     }
 }
 
+
 fn sync_repo_and_run(token: Option<&str>) -> Result<(), String> {
     if !Path::new(REPO_DIR).exists() {
         let repo_url = build_repo_url(token);
