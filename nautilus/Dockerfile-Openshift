@@ -28,5 +28,6 @@ RUN curl -fsSL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.15.7/
 WORKDIR /app
 COPY --from=builder /app/nautilus/target/release/nautilus /app/nautilus
 COPY --from=builder /app/nautilus/nautilus.db /app/nautilus.db
+COPY --from=builder /app/nautilus/templates /app/templates
 RUN chmod 0666 /app/nautilus.db
 CMD ["/bin/sh", "-c", "/app/nautilus api; tail -f /dev/null"]
