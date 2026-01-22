@@ -122,20 +122,20 @@ pub async fn poll_merge_commits(repo: &str, branch: &str, last_sha: Option<&str>
     commits_array.push(data);
   }
 
-  println!("\n\nNautilus is displaying undeployed commits for repo {}:\n", repo);
-  for i in &commits_array {
-    println!("----------\nTitle: {}\nMerged: {}\nMerge Commit Sha: {}\n", i.get_title(), i.get_merged_at(), i.get_merge_commit_sha());
-    let statuses = i.get_statuses();
-    println!("Reporting Status Checks...\n");
-    if statuses.is_empty() {
-      println!("No Status Checks associated with this Commit\n");
-    }
-    else {
-      for j in statuses {
-        println!{"Check: {}, Status: {}, Result: {}\n", j.get_name(), j.get_status(), j.get_conclusion()}
-      }
-    }
-  }
+  // println!("\n\nNautilus is displaying undeployed commits for repo {}:\n", repo);
+  // for i in &commits_array {
+  //   println!("----------\nTitle: {}\nMerged: {}\nMerge Commit Sha: {}\n", i.get_title(), i.get_merged_at(), i.get_merge_commit_sha());
+  //   let statuses = i.get_statuses();
+  //   println!("Reporting Status Checks...\n");
+  //   if statuses.is_empty() {
+  //     println!("No Status Checks associated with this Commit\n");
+  //   }
+  //   else {
+  //     for j in statuses {
+  //       println!{"Check: {}, Status: {}, Result: {}\n", j.get_name(), j.get_status(), j.get_conclusion()}
+  //     }
+  //   }
+  // }
   commits_array
 }
 

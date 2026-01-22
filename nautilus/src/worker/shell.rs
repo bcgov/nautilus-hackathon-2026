@@ -1,11 +1,20 @@
-use std::process::Stdio;
+use std::process::{ExitStatus, Stdio};
 
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
     process::Command,
 };
 
+pub async fn make_file_executable(file_path: &str) -> ExitStatus {
+    Command::new("bash")
+        .arg("-c")
+        .arg(format!("chmod +x {}", file_path))
+        .status().await.unwrap()
+}
+
 pub async fn run_shell_file(file_path: &str) -> Result<(), Box<dyn std::error::Error>> {
+    make_file_executable(file_path).await;
+
     let mut command = Command::new("/bin/sh");
 
     command.args(["-c", file_path]);
